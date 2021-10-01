@@ -9,27 +9,38 @@ var prob = "2 + 5 = ?";
 
 class Mathtest extends Component{
     constructor(props){
-        super(props)
+        super(props);
 
-        this.state={
-            Mathtest:''
+        this.state = {
+            Mathtest:'', 
+            value:''
         }
+
+        this.handleChange = this.handleChange.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    handleChange(event) {
+        this.setState({value: event.target.value});
+    }
+
+    handleSubmit(event) {
+        alert('Answer was submitted: ' + this.state.value);
+        event.preventDefault();
     }
 
     render() {
-        return(
+        return (
             <React.Fragment>
                 <h1>Test Question</h1>
                 <div id="random">{prob}</div>
 
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Expression</th>
-                            <td><form id="form1"><input type="number" id="answer" value="Submit" /></form></td>
-                        </tr>
-                    </thead>
-                </table>
+                                <form onSubmit={this.handleSubmit} id="form1">
+                                <label>
+                                Expression
+                                    <input type="text" value={this.state.value} onChange={this.handleChange} id="answer" />
+                                </label>
+                                </form>
                 <button id="postButton">Evaluate</button>
             </React.Fragment>
         
@@ -39,11 +50,6 @@ class Mathtest extends Component{
 
     componentDidMount(){
         let post = document.getElementById('postButton');
-        // let a = [student];
-        // answer.oninput = function() {
-        //     // var studentAnswer = answer.value;
-        // }
-        // answer.oninput();
 
         // var expr2 = {
         //     "expr": [            
