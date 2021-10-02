@@ -42,7 +42,8 @@ class Mathtest extends Component {
     this.state = {
       mathtest: "",
       mathtestorginal: "",
-      value: "",
+      mathtestnew: "",
+      value: ""
     };
 
     //Randomized equation cleaned up, student sees this
@@ -100,7 +101,7 @@ class Mathtest extends Component {
     let origEqstr = this.state.mathtestorginal;
     origEqstr = origEqstr.replace(/\s+/g, '');
 
-    console.log(origEqstr);
+    console.log("Eq saved DidMount " + origEqstr);
 
     axios({
       method: "post",
@@ -111,8 +112,17 @@ class Mathtest extends Component {
     })
       .then((res) => {
         //handle success
-        console.log(res.data.result);
-        console.log(res);
+        // console.log("Res from axios mathjs answer " + res.data.result);
+        // console.log(res);
+        this.setState((state) => {
+          var mathresult = res.data.result[0];
+          state.mathtestnew = mathresult;
+          // console.log("mathtestnew " + state.mathtestnew); 
+
+          return { count: state.mathtestnew };
+        });
+    
+
       })
       .catch((error) => {
         //handle error
@@ -121,19 +131,54 @@ class Mathtest extends Component {
       .then(function () {
         //always executed
       });
+
   }
 
   componentDidUpdate(prevProps, prevState) {
     //prevState shows previous state, what the student entered before
     if (this.state.value !== prevProps.value) {
-
+      // console.log("Did Update prev prop " + prevState);
       //Student clicks Evaluate button 
       let answer = this.state.value;
-      let post = document.getElementById("postButton");
-      post.onclick = function () {
-        console.log("Did Update Comp " + answer);
+      // console.log("Did Update value " + answer);
+      if (answer === this.state.mathtestnew) {
+        console.log("CORRECT");
+
+      //Next eqaution load 
+      let origEqstr = this.state.mathtestorginal;
+      origEqstr = origEqstr.replace(/\s+/g, '');  
+      // console.log("Outside onclick func " + origEqstr);
+
+        axios({
+          method: "post",
+          url: url,
+          data: {
+            "expr": [origEqstr]
+          },
+        })
+          .then((res) => {
+            //handle success
+            // console.log("Res from axios mathjs answer " + res.data.result);
+            console.log(res);
+          })
+          .catch((error) => {
+            //handle error
+            console.log(error);
+          })
+          .then(function () {
+            //always executed
+          });
+  
 
       };
+  
+
+      // var dispRandom = document.getElementById("random");
+      // post.onclick = function () {
+      //   console.log("Inside onclick func value " + answer);
+      //   console.log("Inside onclick func mathoriginal " + dispNewRandom);
+
+      // };
 
     }
   }
