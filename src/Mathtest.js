@@ -8,10 +8,10 @@ let equation = {
   "expr": [
     "a = 2 + 5",
     "a = 3 + 3",
-    "a = 6 + 2",
-    "a = 3 + 6",
-    "a = 2 + 2",
-    "a = 1 + 6"
+    "a = 6 + 5",
+    "a = 3 + 1",
+    "a = 2 + 8",
+    "a = 1 + 22"
   ]
 };
 
@@ -59,20 +59,60 @@ class Mathtest extends Component {
 
   handleChange(event) {
     this.setState({ value: event.target.value });
-    // console.log("handle change");
+    console.log("handle change");
   }
 
   handleSubmit(event) {
-    alert("Answer was submitted: " + this.state.value);
+    // alert("Answer was submitted: " + this.state.value);
 
-    var newEq = pickRandomProperty(equation.expr);
-    var randEq = equation.expr[newEq];
-    var randEqVis = randEq.slice(3);
-    this.setState((state) => {
-      state.mathtest = randEqVis;
-      state.mathtestorginal = randEq;
-      return { count: state.mathtest };
-    });
+    var studentAns = this.state.value;
+    var mathjsRes = this.state.mathtestnew;
+    if (studentAns !== mathjsRes) {
+      alert("Wrong Answer Please try again");
+
+    } else if (studentAns === mathjsRes) {
+      //After Evaluation Button is hit this fires and picks random equation displays it properly and saves
+      var newEq = pickRandomProperty(equation.expr);
+      var randEq = equation.expr[newEq];
+      var randEqVis = randEq.slice(3);
+      this.setState((state) => {
+        state.mathtest = randEqVis;
+        state.mathtestorginal = randEq;
+        state.value = '';
+
+        return { count: state.mathtest };
+      });
+        //Next eqaution load 
+        var origEqstr = randEqVis.replace(/\s+/g, '');
+
+        axios({
+          method: "post",
+          url: url,
+          data: {
+            "expr": [origEqstr]
+          },
+        })
+          .then((res) => {
+            //handle success
+            // console.log("POST Res from axios mathjs answer " + res.data.result);
+            console.log(res); 
+
+            this.setState((state) => {
+              state.mathtestnew = res.data.result[0];     
+              return { count: state.mathtestnew};
+            });
+
+          })
+          .catch((error) => {
+            //handle error
+            console.log(error);
+          })
+          .then(function () {
+            //always executed
+          });
+
+    }
+    
     event.preventDefault();
   }
 
@@ -81,7 +121,7 @@ class Mathtest extends Component {
       <React.Fragment>
         <h1>Please answer the following equation</h1>
 
-        <form onSubmit={this.handleSubmit} id="form1">
+        <form onSubmit={this.handleSubmit} name="form1" id="form1">
           <label id="random">{this.state.mathtest + " = "}</label>
           <input
             type="text"
@@ -89,19 +129,18 @@ class Mathtest extends Component {
             onChange={this.handleChange}
             id="answer"
           />
-          <button type="submit" id="postButton" value="Submit">Evaluate</button>
+          <button onClick={this.resetNumber} type="submit" id="postButton" value="Submit">Evaluate</button>
         </form>
       </React.Fragment>
     );
   }
 
   componentDidMount() {
-    console.log("Did Mount Comp");
-    // let origEqstr = JSON.stringify(this.state.mathtestorginal);
+    console.log("Comp Did Mount");
     let origEqstr = this.state.mathtestorginal;
     origEqstr = origEqstr.replace(/\s+/g, '');
 
-    console.log("Eq saved DidMount " + origEqstr);
+    // console.log("Eq saved DidMount " + origEqstr);
 
     axios({
       method: "post",
@@ -112,16 +151,16 @@ class Mathtest extends Component {
     })
       .then((res) => {
         //handle success
-        // console.log("Res from axios mathjs answer " + res.data.result);
+        console.log("Res from axios mathjs answer " + res.data.result);
         // console.log(res);
         this.setState((state) => {
           var mathresult = res.data.result[0];
           state.mathtestnew = mathresult;
-          // console.log("mathtestnew " + state.mathtestnew); 
+          console.log("this state mathtestnew " + state.mathtestnew);
 
           return { count: state.mathtestnew };
         });
-    
+
 
       })
       .catch((error) => {
@@ -137,48 +176,6 @@ class Mathtest extends Component {
   componentDidUpdate(prevProps, prevState) {
     //prevState shows previous state, what the student entered before
     if (this.state.value !== prevProps.value) {
-      // console.log("Did Update prev prop " + prevState);
-      //Student clicks Evaluate button 
-      let answer = this.state.value;
-      // console.log("Did Update value " + answer);
-      if (answer === this.state.mathtestnew) {
-        console.log("CORRECT");
-
-      //Next eqaution load 
-      let origEqstr = this.state.mathtestorginal;
-      origEqstr = origEqstr.replace(/\s+/g, '');  
-      // console.log("Outside onclick func " + origEqstr);
-
-        axios({
-          method: "post",
-          url: url,
-          data: {
-            "expr": [origEqstr]
-          },
-        })
-          .then((res) => {
-            //handle success
-            // console.log("Res from axios mathjs answer " + res.data.result);
-            console.log(res);
-          })
-          .catch((error) => {
-            //handle error
-            console.log(error);
-          })
-          .then(function () {
-            //always executed
-          });
-  
-
-      };
-  
-
-      // var dispRandom = document.getElementById("random");
-      // post.onclick = function () {
-      //   console.log("Inside onclick func value " + answer);
-      //   console.log("Inside onclick func mathoriginal " + dispNewRandom);
-
-      // };
 
     }
   }
