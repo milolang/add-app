@@ -1,5 +1,7 @@
 # Getting Started with the Add App
 
+This application displays an equation a input field and a submit button. The user is asked to answer a simple math problem, they enter their answer in the input field and hit valuate button, the app then send a POST request to https://api.mathjs.org url, the response is an answer of the equation, the two are compared and user prompted correct or wrong alert/image, if correct app loads new equation and proccess is repeated. 
+
 ## Available Scripts
 
 In the project directory, you can run:

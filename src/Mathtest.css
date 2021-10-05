@@ -1,4 +1,22 @@
-.header {
+  .row {
     text-align: center;
   }
+
+  .contain {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  form div {
+    margin: 10px;
+  }
+  .one {
+    font-size: 30px;
+  }
+   svg {
+    margin-left: auto;
+    margin-right: auto;
+   }
+
 
