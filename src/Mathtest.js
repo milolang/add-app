@@ -1,6 +1,18 @@
 import React, { Component } from "react";
 import axios from "axios";
 import "./Mathtest.css";
+import Container from 'react-bootstrap/Container';
+import Button from 'react-bootstrap/Button';
+import InputGroup from 'react-bootstrap/InputGroup';
+import FormControl from 'react-bootstrap/FormControl';
+// import Alert from 'react-bootstrap/Alert';
+// import Image from 'react-bootstrap/Image';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import { ReactComponent as Ok } from './ok.svg';
+
+
+
 
 const url = "http://api.mathjs.org/v4/";
 
@@ -43,7 +55,9 @@ class Mathtest extends Component {
       mathtest: "",
       mathtestorginal: "",
       mathtestnew: "",
-      value: ""
+      value: "",
+      // currentCount: ""
+
     };
 
     //Randomized equation cleaned up, student sees this
@@ -70,18 +84,42 @@ class Mathtest extends Component {
     if (studentAns !== mathjsRes) {
       alert("Wrong Answer Please try again");
 
+
     } else if (studentAns === mathjsRes) {
       //After Evaluation Button is hit this fires and picks random equation displays it properly and saves
-      var newEq = pickRandomProperty(equation.expr);
-      var randEq = equation.expr[newEq];
-      var randEqVis = randEq.slice(3);
-      this.setState((state) => {
-        state.mathtest = randEqVis;
-        state.mathtestorginal = randEq;
-        state.value = '';
+      var x = document.getElementById("ok");
 
-        return { count: state.mathtest };
-      });
+      x.style.display = "none";
+
+      function okFire() {
+
+        // console.log("OK ID " + x.style.display);
+        if (x.style.display === "none") {
+          x.style.display = "block";
+          // this.setState((state) => { 
+          //   state.currentCount = -1;
+          //   return { count: state.currentCount };
+          // });
+        } else {
+          x.style.display = "none";
+        }
+      }
+
+      okFire();
+      setTimeout(() => {
+        x.style.display = "none";
+
+
+        var newEq = pickRandomProperty(equation.expr);
+        var randEq = equation.expr[newEq];
+        var randEqVis = randEq.slice(3);
+        this.setState((state) => {
+          state.mathtest = randEqVis;
+          state.mathtestorginal = randEq;
+          state.value = '';
+
+          return { count: state.mathtest };
+        });
         //Next eqaution load 
         var origEqstr = randEqVis.replace(/\s+/g, '');
 
@@ -95,11 +133,11 @@ class Mathtest extends Component {
           .then((res) => {
             //handle success
             // console.log("POST Res from axios mathjs answer " + res.data.result);
-            console.log(res); 
+            console.log(res);
 
             this.setState((state) => {
-              state.mathtestnew = res.data.result[0];     
-              return { count: state.mathtestnew};
+              state.mathtestnew = res.data.result[0];
+              return { count: state.mathtestnew };
             });
 
           })
@@ -111,27 +149,39 @@ class Mathtest extends Component {
             //always executed
           });
 
+      }, 2000);
+
     }
-    
+
     event.preventDefault();
   }
 
   render() {
     return (
-      <React.Fragment>
-        <h1>Please answer the following equation</h1>
 
-        <form onSubmit={this.handleSubmit} name="form1" id="form1">
-          <label id="random">{this.state.mathtest + " = "}</label>
-          <input
-            type="text"
-            value={this.state.value}
-            onChange={this.handleChange}
-            id="answer"
-          />
-          <button onClick={this.resetNumber} type="submit" id="postButton" value="Submit">Evaluate</button>
-        </form>
-      </React.Fragment>
+      <Container className="p3">
+        <Row>
+          <h1 className="header">Please answer the following equation</h1>
+
+          <form onSubmit={this.handleSubmit} name="form1" id="form1">
+            <Col xs={6} md={4}>
+              <label id="random">{this.state.mathtest + " = "}</label>
+            </Col>
+            <Col xs={6} md={4}>
+              <InputGroup size="lg">
+                <InputGroup.Text id="inputGroup-sizing-lg">Large</InputGroup.Text>
+                <FormControl aria-label="Large" aria-describedby="inputGroup-sizing-sm" type="text" value={this.state.value} onChange={this.handleChange} id="answer" />
+              </InputGroup>
+            </Col>
+            <Col xs={6} md={4}>
+              <Button onClick={this.resetNumber} type="submit" id="postButton" value="Submit" variant="primary" className="mx-2">Evaluate</Button>
+            </Col>
+            <Col xs={6} md={4}>
+              <Ok id="ok" width="200" height="200" display="none" />
+            </Col>
+          </form>
+        </Row>
+      </Container>
     );
   }
 
@@ -139,6 +189,10 @@ class Mathtest extends Component {
     console.log("Comp Did Mount");
     let origEqstr = this.state.mathtestorginal;
     origEqstr = origEqstr.replace(/\s+/g, '');
+
+    var intervalId = setInterval(this.timer, 250);
+    // store intervalId in the state so it can be accessed later:
+    this.setState({ intervalId: intervalId });
 
     // console.log("Eq saved DidMount " + origEqstr);
 
